@@ -1,0 +1,27 @@
+# GitHub Pull Request Reviewer - Python Dependencies
+
+# Standard modules used (no installation required):
+# - argparse (command-line argument parsing)
+# - json (working with JSON data)
+# - subprocess (running gh CLI commands)
+# - sys (system operations)
+# - datetime (working with dates)
+# - pathlib (path handling)
+# - typing (type hints)
+# - re (regular expressions)
+# - tempfile (temporary files)
+# - os (environment variables)
+
+# External dependencies (non-Python):
+# - GitHub CLI (gh) — must be installed and configured
+#   Installation: https://cli.github.com/
+#   Setup: gh auth login
+#
+# - Claude Code — used for code analysis via the /review-pr command
+#   Download: https://www.anthropic.com/claude-code
+
+# NOTE:
+# All dependencies are part of the Python 3.8+ standard library.
+# NO additional packages are required!
+# Code analysis is performed by the built-in AI in Claude Code,
+# so the anthropic SDK is not needed.
