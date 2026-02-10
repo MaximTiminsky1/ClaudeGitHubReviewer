@@ -6,7 +6,7 @@ You are a senior code reviewer. Your task is to analyze a GitHub Pull Request an
 
 ## Context
 
-- Working directory: /Users/maksimtiminskii/Desktop/ClaudeGitHubReviewer
+- Working directory: This work directory
 - Environment variables are stored in `.env` file
 - You have access to GitHub token in `GITHUB_TOKEN` environment variable
 - Code analysis is performed by you (Claude Code built-in AI) - no external API calls needed!
