@@ -76,10 +76,6 @@ class GitHubCommentPoster:
             print(f"   Text: {comment['body'][:100]}...")
             print()
 
-    def confirm_posting(self) -> bool:
-        print("="*60)
-        response = input("Publish these comments to GitHub? (yes/no): ").strip().lower()
-        return response in ['yes', 'y']
 
     def post_comments(self, metadata: Dict[str, Any]) -> bool:
         owner = metadata['owner']
@@ -160,10 +156,6 @@ class GitHubCommentPoster:
             return False
 
         self.preview_comments(metadata)
-
-        if not auto_confirm and not self.confirm_posting():
-            print("\n❌ Publishing cancelled")
-            return False
 
         success = self.post_comments(metadata)
 
