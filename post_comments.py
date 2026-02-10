@@ -93,7 +93,17 @@ class GitHubCommentPoster:
 
         print(f"\n📤 Publishing {len(comments)} comments to GitHub...\n")
 
-        github_token = os.getenv('GITHUB_TOKEN')
+        # Get the latest commit SHA from the PR
+        try:
+            cmd = ["gh", "api", f"repos/{owner}/{repo}/pulls/{pr_number}"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            pr_data = json.loads(result.stdout)
+            commit_id = pr_data['head']['sha']
+            print(f"📌 Using commit: {commit_id[:8]}")
+        except Exception as e:
+            print(f"⚠️  Could not get PR commit SHA: {e}")
+            print("🔄 Falling back to individual comments...")
+            return self._post_comments_individually(owner, repo, pr_number, comments)
 
         review_comments = []
         for comment in comments:
@@ -104,8 +114,9 @@ class GitHubCommentPoster:
             })
 
         review_data = {
-            "body": "Code Review",
-            "event": "COMMENT",  # "REQUEST_CHANGES" / "APPROVE"
+            "body": "🤖 Автоматический Code Review",
+            "event": "COMMENT",
+            "commit_id": commit_id,
             "comments": review_comments
         }
 
@@ -132,38 +143,12 @@ class GitHubCommentPoster:
         except subprocess.CalledProcessError as e:
             print(f"\n❌ Error while publishing comments:")
             print(f"   {e.stderr}")
-
-            print("\n🔄 Trying an alternative method (one comment at a time)...")
-            return self._post_comments_individually(owner, repo, pr_number, comments)
+            print(f"\n💡 Tip: Make sure line numbers are correct (should be file lines, not diff lines)")
+            print(f"   Check the diff and verify line numbers match the actual file content.")
+            return False
 
         finally:
             Path(tmp_path).unlink(missing_ok=True)
-
-    def _post_comments_individually(self, owner: str, repo: str, pr_number: str, comments: List[Dict]) -> bool:
-        success_count = 0
-        fail_count = 0
-
-        for i, comment in enumerate(comments, 1):
-            print(f"  [{i}/{len(comments)}] Publishing comment to {comment['path']}:{comment['line']}...", end=" ")
-
-            comment_text = f"**{comment['path']}:{comment['line']}**\n\n{comment['body']}"
-
-            cmd = [
-                "gh", "pr", "comment", pr_number,
-                "--repo", f"{owner}/{repo}",
-                "--body", comment_text
-            ]
-
-            try:
-                subprocess.run(cmd, capture_output=True, text=True, check=True)
-                print("✅")
-                success_count += 1
-            except subprocess.CalledProcessError as e:
-                print(f"❌")
-                fail_count += 1
-
-        print(f"\n📊 Result: {success_count} successful, {fail_count} errors")
-        return fail_count == 0
 
     def run(self, auto_confirm: bool = False):
         print(f"🚀 Starting comment publishing\n")
